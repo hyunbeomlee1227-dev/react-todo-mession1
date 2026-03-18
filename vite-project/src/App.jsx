@@ -1,74 +1,64 @@
-import { getItem, setItem } from "./utils/storage.js";
-
-const storageKey = "todos";
+import TodoList from "./components/TodoList";
+import useTodos from "./hooks/useTodos";
 
 function App() {
-  let todos = getItem(storageKey, []);
-  let lastId =
-    todos == null
-      ? 0
-      : Math.max(
-          todos.map((item) => {
-            item.id;
-          }),
-        ) + 1;
+  const { todos, addTodo, removeTodo, checkTodo } = useTodos();
 
   const handleOnsubmit = (e) => {
     e.preventDefault();
-    const form = e.target;
-    const items = [
-      ...todos,
-      { id: lastId++, value: form.input.value, completed: false },
-    ];
-    setItem(storageKey, items);
+    const value = e.target.input.value;
 
-    form.input.value = "";
-  };
+    if (!value.trim()) return;
 
-  const removeTodo = (selectedId) => {
-    todos = getItem(storageKey, []);
-    const filterTodos = todos.filter((todo) => selectedId != todo.id);
-    setItem(storageKey, filterTodos);
-  };
-
-  const checkTodo = (checkedId) => {
-    todos = getItem(storageKey, []);
-    const checkedTodos = todos.map((todo) =>
-      checkedId == todo.id ? { ...todo, completed: !todo.completed } : todo,
-    );
-    setItem(storageKey, checkedTodos);
+    addTodo(value);
+    e.target.input.value = "";
   };
 
   return (
     <>
-      <form onSubmit={handleOnsubmit}>
-        <input type="text" name="input" placeholder="할일을 입력하세요" />
-        <button type="submit">입력</button>
+      <form
+        onSubmit={handleOnsubmit}
+        style={{
+          display: "flex",
+          gap: "8px",
+        }}
+      >
+        <input
+          type="text"
+          name="input"
+          placeholder="할일을 입력하세요"
+          style={{
+            margin: "10px 20px",
+            maxWidth: "250px",
+            flex: 1,
+            padding: "8px 12px",
+            backgroundColor: "#f5f5f5",
+            border: "none",
+            borderRadius: "6px",
+            outline: "none",
+          }}
+          onFocus={(e) => (e.target.style.backgroundColor = "#ffffff")}
+          onBlur={(e) => (e.target.style.backgroundColor = "#f5f5f5")}
+        />
+        <button
+          type="submit"
+          style={{
+            padding: "8px 12px",
+            background: "none",
+            border: "none",
+            color: "#555",
+            borderRadius: "6px",
+            cursor: "pointer",
+            transition: "0.2s",
+          }}
+          onMouseEnter={(e) => (e.target.style.backgroundColor = "#eaeaea")}
+          onMouseLeave={(e) => (e.target.style.backgroundColor = "transparent")}
+        >
+          입력
+        </button>
       </form>
-      <ul>
-        {todos.map((todo) => (
-          <li
-            style={{
-              textDecoration: todo.completed ? "line-through" : "none",
-            }}
-            type="none"
-            key={todo.id}
-          >
-            <input type="checkbox" onChange={() => checkTodo(todo.id)} />{" "}
-            {todo.value}{" "}
-            <button
-              style={{
-                backgroundColor: "transparent",
-                border: "none",
-                cursor: "pointer",
-              }}
-              onClick={() => removeTodo(todo.id)}
-            >
-              ❌
-            </button>
-          </li>
-        ))}
-      </ul>
+
+      <TodoList todos={todos} removeTodo={removeTodo} checkTodo={checkTodo} />
     </>
   );
 }

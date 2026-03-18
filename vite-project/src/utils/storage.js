@@ -1,10 +1,12 @@
 const storage = window.localStorage;
 
-export const setItem = (key, value) => {
+export const storageKey = "todos";
+
+export const setStorage = (key, value) => {
   storage.setItem(key, JSON.stringify(value));
 };
 
-export const getItem = (key, defalutValue) => {
+export const getStorage = (key, defalutValue) => {
   const value = storage.getItem(key);
 
   if (value === null) return defalutValue;
