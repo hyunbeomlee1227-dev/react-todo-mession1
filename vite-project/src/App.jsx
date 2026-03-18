@@ -1,33 +1,42 @@
-import { useRef, useState } from "react";
+import { getItem, setItem } from "./utils/storage.js";
+
+const storageKey = "todos";
 
 function App() {
-  const [todos, setTodos] = useState([
-    { id: 1, value: "과제하기", completed: false },
-    { id: 2, value: "공부하기", completed: false },
-  ]);
-  let lastId = useRef(todos.length + 1);
+  let todos = getItem(storageKey, []);
+  let lastId =
+    todos == null
+      ? 0
+      : Math.max(
+          todos.map((item) => {
+            item.id;
+          }),
+        ) + 1;
 
   const handleOnsubmit = (e) => {
     e.preventDefault();
     const form = e.target;
-    setTodos([
+    const items = [
       ...todos,
-      { id: lastId.current++, value: form.input.value, completed: false },
-    ]);
+      { id: lastId++, value: form.input.value, completed: false },
+    ];
+    setItem(storageKey, items);
+
     form.input.value = "";
   };
 
   const removeTodo = (selectedId) => {
+    todos = getItem(storageKey, []);
     const filterTodos = todos.filter((todo) => selectedId != todo.id);
-    setTodos(filterTodos);
+    setItem(storageKey, filterTodos);
   };
 
   const checkTodo = (checkedId) => {
-    console.log(checkedId);
+    todos = getItem(storageKey, []);
     const checkedTodos = todos.map((todo) =>
       checkedId == todo.id ? { ...todo, completed: !todo.completed } : todo,
     );
-    setTodos(checkedTodos);
+    setItem(storageKey, checkedTodos);
   };
 
   return (
@@ -39,7 +48,9 @@ function App() {
       <ul>
         {todos.map((todo) => (
           <li
-            style={{ textDecoration: todo.completed ? "line-through" : "none" }}
+            style={{
+              textDecoration: todo.completed ? "line-through" : "none",
+            }}
             type="none"
             key={todo.id}
           >
